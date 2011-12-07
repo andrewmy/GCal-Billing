@@ -305,7 +305,7 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 					Client: <input type="text" name="client" value="<?=$client?>" />
 					<input type="submit" value="Calculate" />
 				</p>
-				<p><small>Expected calendar entry title format: «[Client] [Comments]». Enter hourly rate to see expected wage. Time is rounded to the closest 30 minutes, up or down.</small></p>
+				<p><small>Expected calendar entry title format: «[Client] [Comments]». Enter hourly rate to see expected wage. [Only] total time is rounded to the closest 30 minutes, up or down.</small></p>
 			</fieldset>
 		</form>
 		
