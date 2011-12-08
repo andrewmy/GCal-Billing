@@ -11,22 +11,6 @@ $_authSubKeyFilePassphrase = null;
 
 
 /**
- * Returns a HTTP client object with the appropriate headers for communicating
- * with Google using the ClientLogin credentials supplied.
- *
- * @param  string $user The username, in e-mail address format, to authenticate
- * @param  string $pass The password for the user specified
- * @return Zend_Http_Client
- */
-function getClientLoginHttpClient($user, $pass)
-{
-  $service = Zend_Gdata_Calendar::AUTH_SERVICE_NAME;
-  $client = Zend_Gdata_ClientLogin::getHttpClient($user, $pass, $service);
-  return $client;
-}
-
-
-/**
  * Returns the full URL of the current page, based upon env variables
  *
  * Env variables used:
@@ -151,7 +135,7 @@ function lastday($month = '', $year = '')
       $year = date('Y');
    $result = strtotime("{$year}-{$month}-01");
    $result = strtotime('-1 second', strtotime('+1 month', $result));
-   return date('Y-m-d', $result);
+   return date('Y-m-d H:i:s', $result);
 }
 
 
@@ -160,14 +144,12 @@ header('Content-type: text/html; charset=utf-8');
 
 if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 	$gclient = getAuthSubHttpClient();
-	//outputCalendarList($client);
 	$gdataCal = new Zend_Gdata_Calendar($gclient);
 	$calFeed = $gdataCal->getCalendarListFeed();
-	$calName = '';
+	$calName = isset($_GET['calendar']) ? $_GET['calendar'] : '';
 	$client = isset($_GET['client']) ? $_GET['client'] : 'Dego';
 	$rate = isset($_GET['rate']) ? (float)$_GET['rate'] : 0;
-	if(isset($_GET['calendar'])) {
-		$calName = $_GET['calendar'];
+	if(!empty($calName)) {
 		$calID = '';
 		foreach ($calFeed as $calendar) {
 			if($calendar->title->text == $calName)  {
@@ -187,7 +169,7 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 	  
 	  $range = @$_GET['range'];
 	  if(empty($range))
-		$range = date('Y-m-01');
+		$range = date('Y-m-01 00:00:00');
 	  $rangeTime = strtotime($range);
 	  $range = array($range, lastday(date('m', $rangeTime), date('Y', $rangeTime)));
 	  $query->setStartMin($range[0]);
