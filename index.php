@@ -182,20 +182,20 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 	  foreach ($eventFeed as $event) {
 		if(stripos($event->title->text, $client) === false)
 			continue;
-		$startTime = strtotime($event->when[0]->startTime);
-		$endTime = strtotime($event->when[0]->endTime);
-		$diff = $endTime - $startTime;
+		$startTime = new DateTime($event->when[0]->startTime);
+		$endTime = new DateTime($event->when[0]->endTime);
+		$diff = $endTime->getTimestamp() - $startTime->getTimestamp();
 		if($diff >= 24 * 3600)
 			continue;
 		$sum += $diff;
 		$diffM = ($diff % 3600)/60;
-		$diffM = ($diffM > 0) ? ':'.str_pad($diffM, '0', 2) : '';
-		$date = date('j', $startTime);
+		$diffM = ($diffM > 0) ? ':'.str_pad($diffM, 2, '0', STR_PAD_LEFT) : '';
+		$date = $startTime->format('j');
 		$entry = array(
 			'title' => str_ireplace($client, '', $event->title->text),
 			'date' => $date,
-			'startTime' => date('H:i', $startTime),
-			'endTime' => date('H:i', $endTime),
+			'startTime' => $startTime->format('H:i'),
+			'endTime' => $endTime->format('H:i'),
 			'diff' => floor($diff / 3600).$diffM,
 		);
 		$entries[] = $entry;
@@ -314,8 +314,8 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 			<li>
 				<?=$date?>.
 				<? foreach($items as $n => $item){ ?>
-				<?=$item['startTime']?>&ndash;<?=$item['endTime']?> = <?=$item['diff']?>
-				<?=$item['title']?><?=($n < count($items)-1 ? '; ' : '')?>
+					<?=$item['startTime']?>&ndash;<?=$item['endTime']?> =
+					<?=trim( $item['diff'].$item['title'].($n < count($items)-1 ? '; ' : '') )?>
 				<? } ?>
 			</li>
 			<? } ?>
