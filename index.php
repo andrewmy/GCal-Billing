@@ -288,7 +288,7 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 					</select>
 					Month:
 					<select name="range" onchange="this.form.submit()">
-						<? for($i = 0; $i < 12; $i++) { $d = strtotime(date('Y-m-01', strtotime("-$i month"))); ?>
+						<? for($i = 0; $i < 12; $i++) { $d = strtotime(date('Y-m-01', strtotime("first day of -$i month"))); ?>
 						<option value="<?=date('Y-m-d', $d)?>"<?=(date('Y-m-d', $d) == $range[0] ? ' selected' : '')?>><?=date('F Y', $d)?></option>
 						<? } ?>
 					</select>
