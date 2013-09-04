@@ -149,6 +149,7 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 	$calName = isset($_GET['calendar']) ? $_GET['calendar'] : '';
 	$client = isset($_GET['client']) ? $_GET['client'] : 'Dego';
 	$rate = isset($_GET['rate']) ? (float)$_GET['rate'] : 0;
+	$dateChangeHour = isset($_GET['datechangehour']) ? (int)$_GET['datechangehour'] : 4;
 	if(!empty($calName)) {
 		$calID = '';
 		foreach ($calFeed as $calendar) {
@@ -191,6 +192,8 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 		$diffM = ($diff % 3600)/60;
 		$diffM = ($diffM > 0) ? ':'.str_pad($diffM, 2, '0', STR_PAD_LEFT) : '';
 		$date = $startTime->format('j');
+		if($startTime->format('G') < $dateChangeHour && $date > 1)
+			$date--;
 		$entry = array(
 			'title' => str_ireplace($client, '', $event->title->text),
 			'date' => $date,
@@ -224,7 +227,7 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 		$sum += $adjustM * 60;
 	  }
 	  $sumM = ($sumM > 0) ? ':'.str_pad($sumM, '0', 2) : '';
-	  $sumLs = number_format($sum * $rate / 3600, 2);
+	  $sumWages = number_format($sum * $rate / 3600, 2);
   }
 }
 
@@ -275,30 +278,37 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 		<h1>Billing</h1>
 		<?php
 		if (!isset($_SESSION['sessionToken']) && !isset($_GET['token']))
-			requestUserLogin('Please login to your Google Account.');
+			requestUserLogin('Please login to your Google Account. Nothing is saved on the server.');
 		elseif(!empty($calName)) {
 		
 		?>
 		<form method="get" action="">
 			<fieldset>
 				<legend>Choose events</legend>
-				<p>Calendar:
+				<p>
+					Calendar:
 					<select name="calendar" onchange="this.form.submit()">
 						<? foreach ($calFeed as $calendar) { ?>
 						<option value="<?=$calendar->title->text?>"<?=($calName == $calendar->title->text ? ' selected' : '')?>><?=$calendar->title->text?></option>
 						<? } ?>
-					</select>
+					</select>&nbsp;
 					Month:
 					<select name="range" onchange="this.form.submit()">
 						<? for($i = 0; $i < 12; $i++) { $d = strtotime(date('Y-m-01', strtotime("first day of -$i month"))); ?>
 						<option value="<?=date('Y-m-d', $d)?>"<?=(date('Y-m-d', $d) == $range[0] ? ' selected' : '')?>><?=date('F Y', $d)?></option>
 						<? } ?>
-					</select>
-					Rate: <input type="text" name="rate" value="<?=$rate?>" />
-					Client: <input type="text" name="client" value="<?=$client?>" />
+					</select>&nbsp;
+					Date change hour: <input type="text" name="datechangehour" value="<?=$dateChangeHour?>" size="2" />:00&nbsp; &nbsp;
+					Rate: <input type="text" name="rate" value="<?=$rate?>" size="5" />&nbsp;
+					Client: <input type="text" name="client" value="<?=$client?>" />&nbsp;
 					<input type="submit" value="Calculate" />
 				</p>
-				<p><small>Expected calendar entry title format: «[Client] [Comments]». Enter hourly rate to see expected wage. [Only] total time is rounded to the closest 30 minutes, up or down.</small></p>
+				<p><small>Expected calendar entry title format: «[Client] [Optional comments in round brackets]».
+					Enter hourly rate to see expected wage.
+					[Only] total time is rounded to the closest 30 minutes, up or down.
+					Date change hour makes sense if it's between 0 and 12.
+				</small></p>
+				<p><small>Privacy policy: nothing is saved on the server.</small></p>
 			</fieldset>
 		</form>
 		
@@ -333,7 +343,7 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 		</ul>
 		
 		<p><strong>Total:</strong> <?=$sumH.$sumM?> h <?=($adjustM != 0 ? " (adjusted by $adjustM m)" : '')?></p>
-		<? if($sumLs > 0) { ?><p><small>(Ls <?=$sumLs?>)</small></p><? } ?>
+		<? if($sumWages > 0) { ?><p><small>(<?=$sumWages?> coins)</small></p><? } ?>
 		
 		<? } else { ?>
 		<form method="get" action="">
