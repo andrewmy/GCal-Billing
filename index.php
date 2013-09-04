@@ -232,16 +232,18 @@ if (isset($_SESSION['sessionToken']) || isset($_GET['token'])) {
 <html>
 	<head>
 		<title>Billing</title>
+		<link href='http://fonts.googleapis.com/css?family=Archivo+Narrow:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css' />
 		<style>
 		body {
 			margin: 20px 40px;
 		}
-		h1, h2 {
-			font-family: Tahoma;
+		html, body, caption, th, td, p, select, option, li, fieldset, button, input {
+			font-family: "Archivo Narrow", Tahoma, sans-serif;
+			font-size: 1em;
+			font-weight: 400;
 		}
-		caption, th, td, p, select, option, li, fieldset, button {
-			font-family: Tahoma;
-			font-size: 9pt;
+		th {
+			font-weight: 700;
 		}
 		table, th, td {
 			border: 0;
