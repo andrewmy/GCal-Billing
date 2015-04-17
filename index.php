@@ -95,7 +95,7 @@ if (isset($_SESSION['googleToken'])) {
     }
 
 	$calId = isset($_GET['calendar']) ? $_GET['calendar'] : '';
-	$clientName = isset($_GET['client']) ? $_GET['client'] : 'Dego';
+	$clientName = isset($_GET['client']) ? $_GET['client'] : '';
 	$hourlyRate = isset($_GET['rate']) ? (float)$_GET['rate'] : 0;
 	$dateChangeHour = isset($_GET['datechangehour']) ? (int)$_GET['datechangehour'] : 4;
 
@@ -155,7 +155,7 @@ if (isset($_SESSION['googleToken'])) {
         $sum = 0;
         $entries = $entriesByDate = [];
         foreach ($eventsList as $event) {
-            if(stripos($event->summary, $clientName) === false)
+            if(!empty($clientName) && stripos($event->summary, $clientName) === false)
                 continue;
             $startTime = new DateTime($event->start->dateTime);
             $endTime = new DateTime($event->end->dateTime);
@@ -170,8 +170,9 @@ if (isset($_SESSION['googleToken'])) {
             $date = $startTime->format('j');
             if($startTime->format('G') < $dateChangeHour && $date > 1)
                 $date--;
+            $title = trim(str_ireplace($clientName, '', $event->summary));
             $entry = [
-                'title' => str_ireplace($clientName, '', $event->summary),
+                'title' => empty($title) ? '' : ' &mdash; '.$title,
                 'date' => $date,
                 'startTime' => $startTime->format('H:i'),
                 'endTime' => $endTime->format('H:i'),
@@ -278,9 +279,10 @@ if (isset($_SESSION['googleToken'])) {
                         Client: <input type="text" name="client" value="<?=$clientName?>" />&nbsp;
                         <input type="submit" value="Calculate" />
                     </p>
-                    <p><small>Expected calendar entry title format: «[Client] [Optional comments in round brackets]».
+                    <p><small>Expected calendar entry title format: «[Client] [Optional comments]».
                         Enter hourly rate to see expected wage.
-                        [Only] total time is rounded to the closest 30 minutes, up or down.
+                        Each entry is rounded to 15 minutes.
+                        The total time is rounded to the closest 30 minutes, up or down.
                         Date change hour makes sense if it's between 0 and 12.
                     </small></p>
                     <p><small>Privacy policy: nothing is saved on the server.</small></p>
