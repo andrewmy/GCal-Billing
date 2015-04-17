@@ -63,6 +63,14 @@ $gClient = getClient(
     $cfg['appId'], $cfg['appSecret']
 );
 
+if(!empty($_GET['action'])) {
+    if($_GET['action'] == 'logout') {
+        unset($_SESSION['googleToken']);
+        header('Location: '.getCurrentUrl());
+        exit;
+    }
+}
+
 if(!empty($_GET['code'])) {
     try {
         $token = $gClient->authenticate($_GET['code']);
@@ -208,7 +216,7 @@ if (isset($_SESSION['googleToken'])) {
 		body {
 			margin: 20px 40px;
 		}
-		html, body, caption, th, td, p, select, option, li, fieldset, button, input {
+		html, body, caption, th, td, p, select, option, li, fieldset, button, input, a {
 			font-family: "Archivo Narrow", Tahoma, sans-serif;
 			font-size: 1em;
 			font-weight: 400;
@@ -276,6 +284,7 @@ if (isset($_SESSION['googleToken'])) {
                         Date change hour makes sense if it's between 0 and 12.
                     </small></p>
                     <p><small>Privacy policy: nothing is saved on the server.</small></p>
+                    <p><a href="?action=logout">Log out</a></p>
                 </fieldset>
             </form>
 
